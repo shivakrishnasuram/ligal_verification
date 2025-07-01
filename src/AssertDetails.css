@@ -1,0 +1,46 @@
+/* Add this to your AssertDetails.css file */
+
+.thumbnail-container {
+    height: 200px; /* Set a fixed height for thumbnails */
+    overflow: hidden; /* Hide any overflow */
+    position: relative;
+}
+
+.thumbnail-container .rpv-core__viewer {
+    height: 100% !important;
+    overflow: hidden !important; /* Hide scrollbars */
+}
+
+.thumbnail-container .rpv-core__viewer-container {
+    overflow: hidden !important; /* Hide scrollbars */
+}
+
+.thumbnail-container .rpv-core__canvas-layer {
+    overflow: hidden !important; /* Hide scrollbars */
+}
+
+/* Hide scrollbars but keep functionality for webkit browsers */
+.thumbnail-container ::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbars for Firefox */
+.thumbnail-container {
+    scrollbar-width: none;
+}
+
+/* Alternative approach - if the above doesn't work, use this more specific selector */
+.thumbnail-container .rpv-core__viewer,
+.thumbnail-container .rpv-core__viewer-container,
+.thumbnail-container .rpv-core__canvas-layer,
+.thumbnail-container .rpv-core__text-layer {
+    overflow: hidden !important;
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+.thumbnail-container .rpv-core__viewer::-webkit-scrollbar,
+.thumbnail-container .rpv-core__viewer-container::-webkit-scrollbar,
+.thumbnail-container .rpv-core__canvas-layer::-webkit-scrollbar {
+    display: none !important; /* Chrome, Safari, Opera */
+}
