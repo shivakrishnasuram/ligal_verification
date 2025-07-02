@@ -36,6 +36,7 @@ export default function SidebarLayout({ children }) {
       <List>
         <ListItem button onClick={() => navigate("/")}> <ListItemText primary="Asset Table" /> </ListItem>
         <ListItem button onClick={() => navigate("/asset-details/123")}> <ListItemText primary="Dummy Asset Detail" /> </ListItem>
+        <ListItem button onClick={() => navigate("/verifiedAssets")}> <ListItemText primary="verifiedAssets" /> </ListItem>
       </List>
     </div>
   );
@@ -50,7 +51,7 @@ export default function SidebarLayout({ children }) {
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" noWrap>Asset Management</Typography>
+          <Typography variant="h6" noWrap>ligal docs</Typography>
         </Toolbar>
       </AppBar>
 

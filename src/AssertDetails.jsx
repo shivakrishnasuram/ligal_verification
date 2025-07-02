@@ -24,13 +24,13 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 export default function AssetDetails() {
     const { state: asset } = useLocation();
     const navigate = useNavigate();
-
     const [selectedDoc, setSelectedDoc] = useState(null);
+    const [verifyFile, setVerifyFile] = useState(null);
+
     const [showAddForm, setShowAddForm] = useState(false);
     const [showQueryForm, setShowQueryForm] = useState(false);
     const [addMessage, setAddMessage] = useState("");
     const [queryMessage, setQueryMessage] = useState("");
-
     const [showVerifyModal, setShowVerifyModal] = useState(false);
     const [verifyMessage, setVerifyMessage] = useState("");
     const [propertyVerified, setPropertyVerified] = useState(false);
@@ -41,6 +41,37 @@ export default function AssetDetails() {
             toast.success(`Welcome ${asset.name}!`);
         }
     }, [asset]);
+
+    const handleVerifySubmit = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("user_id", asset.user_id);
+            formData.append("asset_id", asset._id);
+            formData.append("message", verifyMessage);
+            formData.append("propertyVerified", propertyVerified);
+            formData.append("documentsVerified", documentsVerified);
+            formData.append("status", "Legal verification done");
+            if (verifyFile) {
+                formData.append("file", verifyFile); // 👈 Add file
+            }
+
+            await axios.post("http://localhost:5000/api/verify", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            toast.success("Verification submitted");
+            setShowVerifyModal(false);
+            setVerifyMessage("");
+            setPropertyVerified(false);
+            setDocumentsVerified(false);
+            setVerifyFile(null);
+            navigate("/")
+        } catch (error) {
+            console.error("Verification failed:", error);
+            toast.error("Verification failed");
+        }
+    };
+
 
     const handleSubmit = async (type) => {
         const payload = {
@@ -71,29 +102,29 @@ export default function AssetDetails() {
         }
     };
 
-    const handleVerifySubmit = async () => {
-        try {
-            const payload = {
-                user_id: asset.user_id,
-                asset_id: asset._id,
-                message: verifyMessage,
-                propertyVerified,
-                documentsVerified,
-                status: "Legal verification done",
-            };
+    // const handleVerifySubmit = async () => {
+    //     try {
+    //         const payload = {
+    //             user_id: asset.user_id,
+    //             asset_id: asset._id,
+    //             message: verifyMessage,
+    //             propertyVerified,
+    //             documentsVerified,
+    //             status: "Legal verification done",
+    //         };
 
-            await axios.post("http://localhost:5000/api/verify", payload);
+    //         await axios.post("http://localhost:5000/api/verify", payload);
 
-            toast.success("Verification submitted");
-            setShowVerifyModal(false);
-            setVerifyMessage("");
-            setPropertyVerified(false);
-            setDocumentsVerified(false);
-        } catch (error) {
-            console.error("Verification failed:", error);
-            toast.error("Verification failed");
-        }
-    };
+    //         toast.success("Verification submitted");
+    //         setShowVerifyModal(false);
+    //         setVerifyMessage("");
+    //         setPropertyVerified(false);
+    //         setDocumentsVerified(false);
+    //     } catch (error) {
+    //         console.error("Verification failed:", error);
+    //         toast.error("Verification failed");
+    //     }
+    // };
 
     if (!asset) {
         return (
@@ -179,18 +210,19 @@ export default function AssetDetails() {
                         <Paper sx={{ p: 2, cursor: "pointer" }} onClick={() => setSelectedDoc(doc)} elevation={2}>
                             <div className="thumbnail-container" style={{
                                 height: '200px',
-                                width: '100%',
+                                width: '300px',
                                 overflow: 'hidden',
                                 border: '1px solid #e0e0e0',
                                 borderRadius: '4px',
                                 backgroundColor: '#f5f5f5',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                pointerEvents: 'none'
                             }}>
                                 <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
-                                    <div style={{ 
-                                        width: '100%', 
+                                    <div style={{
+                                        width: '100%',
                                         height: '100%',
                                         transform: 'scale(0.8)',
                                         transformOrigin: 'center'
@@ -234,9 +266,9 @@ export default function AssetDetails() {
                             onClick={() => setSelectedDoc(null)}
                             variant="contained"
                             color="error"
-                            sx={{ 
-                                position: "absolute", 
-                                top: 15, 
+                            sx={{
+                                position: "absolute",
+                                top: 15,
                                 right: 15,
                                 zIndex: 1000,
                                 minWidth: '80px',
@@ -294,6 +326,21 @@ export default function AssetDetails() {
                     <FormControlLabel
                         control={<Checkbox checked={documentsVerified} onChange={() => setDocumentsVerified(!documentsVerified)} />}
                         label="Required Documents Verified"
+                    />
+                    <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file && file.type !== "application/pdf") {
+                                toast.error("Only PDF files are allowed!");
+                                e.target.value = null; // Reset file input
+                                setVerifyFile(null);
+                            } else {
+                                setVerifyFile(file);
+                            }
+                        }}
+                        style={{ marginTop: "1rem" }}
                     />
 
                     <TextField
